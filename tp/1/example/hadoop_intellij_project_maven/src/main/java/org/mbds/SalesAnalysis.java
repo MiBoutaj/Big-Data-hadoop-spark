@@ -28,18 +28,27 @@ public class SalesAnalysis {
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
+            if(value.toString().startsWith("Region,Country,Item Type,Sales Channel,Order Priority,Order Date,Order ID,Ship Date,Units Sold,Unit Price,Unit Cost,Total Revenue,Total Cost,Total Profit")){
+                // Skip header line (first line) of CSV
+                return;
+            }
             Configuration conf = context.getConfiguration();
             int choix = conf.getInt("org.mbds.SalesAnalysis",0);
 
             String line = value.toString();
-            line.lines().skip(1);
-
             String[] columns = line.split(",");
 
-            if (choix ==0)   sortedWord.set(columns[0]);
-            else sortedWord.set(columns[1]);
 
-            total = new FloatWritable(Float.parseFloat(columns[2])); // Price
+            if (choix ==0)   {
+                System.out.println("************"+choix);
+                sortedWord= new Text(columns[1]);
+
+            }
+            else sortedWord.set(columns[2]);
+
+            System.out.println("************============"+Float.parseFloat(columns[13]));
+            System.out.println("************"+columns[1]);
+            total=new FloatWritable(Float.parseFloat(columns[13])); // Price
             context.write(sortedWord, total); // This context object represents the Key-Value pair output of the mapper (Context object: Allows the Mapper/Reducer to interact with the rest of the Hadoop system)
 
         }
